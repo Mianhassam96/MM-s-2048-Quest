@@ -1,3 +1,4 @@
+<script>
 document.addEventListener('DOMContentLoaded', () => {
     const gridDisplay = document.querySelector('.grid');
     const scoreDisplay = document.getElementById('score');
@@ -10,14 +11,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const mergeSound = document.getElementById('mergeSound');
     const winSound = document.getElementById('winSound');
     const loseSound = document.getElementById('loseSound');
-    let squares = [];
-    let score = 0;
-    let highScore = localStorage.getItem('highScore') || 0;
-    let isSoundOn = true;
-    let isDarkTheme = localStorage.getItem('theme') === 'dark';
-    highScoreDisplay.innerHTML = highScore;
 
-    // Apply saved theme
+    // Tiles
+    let squares = [];
+
+    // Scoring and settings
+    let score = 0;
+    let highScore = parseInt(localStorage.getItem('highScore'), 10) || 0;
+    let isSoundOn = true;
+
+    // Theme
+    let isDarkTheme = localStorage.getItem('theme') === 'dark';
+
+    // Initialize UI on load
+    highScoreDisplay.textContent = highScore;
     if (isDarkTheme) {
         document.body.classList.add('dark-theme');
         themeToggle.textContent = 'Theme: Dark';
@@ -30,51 +37,68 @@ document.addEventListener('DOMContentLoaded', () => {
         initializeGame();
     });
 
-    // Initialize the game
+    // Restart the game
+    restartButton.addEventListener('click', initializeGame);
+
+    /**
+     * Initializes the game board by clearing old tiles, resetting the score,
+     * and generating two initial tiles.
+     */
     function initializeGame() {
         gridDisplay.innerHTML = '';
         squares = [];
         score = 0;
-        scoreDisplay.innerHTML = score;
+        scoreDisplay.textContent = score;
+
+        // Create 16 tiles
         for (let i = 0; i < 16; i++) {
             const square = document.createElement('div');
-            square.setAttribute('data-value', '0');
+            square.dataset.value = '0';
             gridDisplay.appendChild(square);
             squares.push(square);
         }
         generateNewTile();
         generateNewTile();
+        document.addEventListener('keyup', handleKeyPress); // Reattach key listener
     }
 
-    // Generate a new tile with value 2 or 4
+    /**
+     * Generates a new tile with a value of 2 or 4 in an empty square.
+     */
     function generateNewTile() {
-        const emptySquares = squares.filter(square => square.getAttribute('data-value') === '0');
+        const emptySquares = squares.filter(square => square.dataset.value === '0');
         if (emptySquares.length > 0) {
             const randomSquare = emptySquares[Math.floor(Math.random() * emptySquares.length)];
             const newValue = Math.random() > 0.9 ? '4' : '2';
-            randomSquare.setAttribute('data-value', newValue);
-            randomSquare.innerHTML = newValue;
+            randomSquare.dataset.value = newValue;
+            randomSquare.textContent = newValue;
             updateTileAppearance(randomSquare);
             checkLose();
         }
     }
 
-    // Update tile appearance based on value
+    /**
+     * Updates the tile's CSS classes based on its value.
+     */
     function updateTileAppearance(tile) {
-        const value = tile.getAttribute('data-value');
+        const value = tile.dataset.value;
         tile.className = 'tile';
         tile.classList.add(`tile-${value}`);
     }
 
-    // Combine tiles and move them in a direction
+    /**
+     * Moves (and possibly merges) all tiles in the given direction.
+     */
     function moveTiles(direction) {
         if (isSoundOn) moveSound.play();
 
         const rowsOrColumns = [];
-        if (['left', 'right'].includes(direction)) {
+
+        // Collect rows or columns depending on move direction
+        if (direction === 'left' || direction === 'right') {
             for (let i = 0; i < 16; i += 4) {
                 let row = squares.slice(i, i + 4);
-                if (direction === 'right') row = row.reverse();
+                if (direction === 'right') row.reverse();
                 rowsOrColumns.push(row);
             }
         } else {
@@ -85,55 +109,77 @@ document.addEventListener('DOMContentLoaded', () => {
                     squares[i + 8],
                     squares[i + 12]
                 ];
-                if (direction === 'down') column = column.reverse();
+                if (direction === 'down') column.reverse();
                 rowsOrColumns.push(column);
             }
         }
 
         let moved = false;
+
+        // For each row/column grouping, merge values
         rowsOrColumns.forEach(group => {
-            const values = group.map(square => parseInt(square.getAttribute('data-value')));
-            const newValues = mergeValues(values);
+            const oldValues = group.map(square => parseInt(square.dataset.value, 10));
+            const newValues = mergeValues(oldValues);
 
             for (let i = 0; i < group.length; i++) {
-                if (group[i].getAttribute('data-value') !== newValues[i].toString()) moved = true;
-                group[i].setAttribute('data-value', newValues[i]);
-                group[i].innerHTML = newValues[i] === 0 ? '' : newValues[i];
+                // Check if at least one tile changed
+                if (oldValues[i] !== newValues[i]) {
+                    moved = true;
+                }
+                group[i].dataset.value = newValues[i].toString();
+                group[i].textContent = newValues[i] === 0 ? '' : newValues[i];
                 updateTileAppearance(group[i]);
             }
         });
 
-        if (moved) generateNewTile();
+        if (moved) {
+            generateNewTile();
+        }
     }
 
-    // Merge values in a row or column
+    /**
+     * Merges adjacent matching values (e.g., 2 + 2 -> 4) in an array of four.
+     * Returns the new array of values after merging.
+     */
     function mergeValues(values) {
-        const filteredValues = values.filter(value => value !== 0);
-        for (let i = 0; i < filteredValues.length - 1; i++) {
-            if (filteredValues[i] === filteredValues[i + 1]) {
-                filteredValues[i] *= 2;
-                score += filteredValues[i];
-                scoreDisplay.innerHTML = score;
-                filteredValues[i + 1] = 0;
+        // Filter out zero values
+        const filtered = values.filter(val => val !== 0);
+
+        for (let i = 0; i < filtered.length - 1; i++) {
+            if (filtered[i] === filtered[i + 1]) {
+                filtered[i] *= 2;
+                score += filtered[i];
+                filtered[i + 1] = 0;
                 if (isSoundOn) mergeSound.play();
                 updateHighScore();
             }
         }
-        return filteredValues.filter(value => value !== 0).concat(Array(4 - filteredValues.length).fill(0));
+
+        // Filter again to remove zeros from merged pairs and pad with zeros
+        const merged = filtered.filter(val => val !== 0);
+        while (merged.length < 4) {
+            merged.push(0);
+        }
+        return merged;
     }
 
-    // Update high score
+    /**
+     * Updates and saves the high score if the current score exceeds it.
+     */
     function updateHighScore() {
         if (score > highScore) {
             highScore = score;
-            highScoreDisplay.innerHTML = highScore;
+            highScoreDisplay.textContent = highScore;
             localStorage.setItem('highScore', highScore);
         }
     }
 
-    // Check for win
+    /**
+     * Checks if 2048 has been reached (win condition).
+     */
     function checkWin() {
-        if (squares.some(square => square.getAttribute('data-value') === '2048')) {
+        const hasWon = squares.some(square => square.dataset.value === '2048');
+        if (hasWon) {
             if (isSoundOn) winSound.play();
             triggerConfetti();
             alert('Congratulations! You won!');
@@ -141,16 +187,22 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Check for lose
+    /**
+     * Checks if there are no empty squares left and ends game if so.
+     * (Note: This doesn’t check for possible merges, which is an additional check some versions do.)
+     */
     function checkLose() {
-        if (!squares.some(square => square.getAttribute('data-value') === '0')) {
+        const noEmptySquares = !squares.some(square => square.dataset.value === '0');
+        if (noEmptySquares) {
             alert('Game Over!');
             if (isSoundOn) loseSound.play();
             document.removeEventListener('keyup', handleKeyPress);
         }
     }
 
-    // Handle keyboard input
+    /**
+     * Handles arrow key presses.
+     */
     function handleKeyPress(event) {
         switch (event.key) {
             case 'ArrowRight':
@@ -165,17 +217,18 @@ document.addEventListener('DOMContentLoaded', () => {
             case 'ArrowUp':
                 moveTiles('up');
                 break;
+            default:
+                return; // Ignore other keys
         }
         checkWin();
     }
 
     document.addEventListener('keyup', handleKeyPress);
 
-    // Restart the game
-    restartButton.addEventListener('click', initializeGame);
-
     // Swipe gestures for mobile
-    let touchStartX, touchStartY;
+    let touchStartX = 0;
+    let touchStartY = 0;
+
     gridDisplay.addEventListener('touchstart', (e) => {
         touchStartX = e.touches[0].clientX;
         touchStartY = e.touches[0].clientY;
@@ -186,6 +239,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const touchEndY = e.changedTouches[0].clientY;
         const dx = touchEndX - touchStartX;
         const dy = touchEndY - touchStartY;
+
         if (Math.abs(dx) > Math.abs(dy)) {
             moveTiles(dx > 0 ? 'right' : 'left');
         } else {
@@ -194,8 +248,11 @@ document.addEventListener('DOMContentLoaded', () => {
         checkWin();
     });
 
-    // Confetti animation
+    /**
+     * Renders and clears confetti on win.
+     */
     function triggerConfetti() {
+        // If confetti.js is loaded
         const confettiSettings = { target: 'confetti' };
         const confetti = new ConfettiGenerator(confettiSettings);
         confetti.render();
@@ -216,3 +273,4 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('theme', isDarkTheme ? 'dark' : 'light');
     });
 });
+</script>
