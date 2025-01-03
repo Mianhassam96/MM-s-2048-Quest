@@ -1,0 +1,196 @@
+/* General Styles */
+body {
+    background: linear-gradient(135deg, #faf8ef, #d7ccc8);
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    color: #3e3a35;
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme {
+    background: linear-gradient(135deg, #2d2d2d, #1a1a1a);
+    color: #f9f6f2;
+}
+
+/* Header */
+.header {
+    font-size: 60px;
+    margin-top: 20px;
+    text-align: center;
+    font-weight: bold;
+    color: inherit;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    letter-spacing: 3px;
+    animation: fadeIn 1s ease-in-out;
+}
+
+/* Instructions */
+.instructions {
+    text-align: center;
+    margin: 10px 0;
+    font-size: 18px;
+    color: inherit;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 10px 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Score and High Score Container */
+.scoreContainer {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.scoreContainer div {
+    background: linear-gradient(135deg, #e4a772, #d5846c);
+    padding: 10px 20px;
+    border-radius: 15px;
+    color: #fff;
+    font-size: 24px;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+.scoreContainer div:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+}
+
+/* Grid */
+.grid {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 15px;
+    background-color: #bbada0;
+    margin: 20px auto;
+    border-radius: 10px;
+    padding: 15px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+}
+
+.grid div {
+    background-color: #cdc1b4;
+    text-align: center;
+    vertical-align: middle;
+    line-height: 100px;
+    font-weight: bold;
+    font-size: 52px;
+    border-radius: 10px;
+    color: #776e65;
+    transition: all 0.3s ease;
+    animation: appear 0.4s ease-in-out;
+    user-select: none;
+}
+
+.grid div:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes appear {
+    from { transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+/* Tile Colors */
+.grid div[data-value="2"] { background-color: #eee4da; color: #776e65; }
+.grid div[data-value="4"] { background-color: #ede0c8; color: #776e65; }
+.grid div[data-value="8"] { background-color: #f2b179; color: #f9f6f2; }
+.grid div[data-value="16"] { background-color: #f59563; color: #f9f6f2; }
+.grid div[data-value="32"] { background-color: #f67c5f; color: #f9f6f2; }
+.grid div[data-value="64"] { background-color: #f65e3b; color: #f9f6f2; }
+.grid div[data-value="128"] { background-color: #edcf72; color: #f9f6f2; }
+.grid div[data-value="256"] { background-color: #edcc61; color: #f9f6f2; }
+.grid div[data-value="512"] { background-color: #edc850; color: #f9f6f2; }
+.grid div[data-value="1024"] { background-color: #edc53f; color: #f9f6f2; }
+.grid div[data-value="2048"] { background-color: #edc22e; color: #f9f6f2; }
+
+/* Controls */
+.controls {
+    text-align: center;
+    margin: 20px 0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.controls button {
+    background: linear-gradient(135deg, #8f7a66, #705a4f);
+    color: #f9f6f2;
+    border: none;
+    padding: 12px 25px;
+    font-size: 18px;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.3s ease, background 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.controls button:hover {
+    transform: translateY(-5px);
+    background: linear-gradient(135deg, #776e65, #5c4b3b);
+}
+
+/* Footer */
+footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 16px;
+    color: inherit;
+}
+
+footer .highlight {
+    font-weight: bold;
+    color: #8f7a66;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+    .header {
+        font-size: 40px;
+    }
+
+    .instructions {
+        font-size: 16px;
+    }
+
+    .grid {
+        grid-template-columns: repeat(4, 70px);
+        grid-template-rows: repeat(4, 70px);
+        gap: 8px;
+        padding: 8px;
+    }
+
+    .grid div {
+        line-height: 70px;
+        font-size: 32px;
+    }
+
+    .scoreContainer {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .scoreContainer div {
+        font-size: 20px;
+        padding: 8px 16px;
+    }
+
+    .controls button {
+        font-size: 16px;
+        padding: 8px 16px;
+    }
+}

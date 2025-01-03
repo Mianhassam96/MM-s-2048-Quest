@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.4.0/dist/confetti.browser.min.js"></script>
+    <script src="script.js" defer></script>
+    <title>MM's 2048 Quest</title>
+</head>
+<body>
+    <div class="header">MM's 2048 Quest</div>
+
+    <div class="instructions">
+        Instructions: Use arrow keys or swipe to play. Combine tiles to reach 2048!
+    </div> 
+
+    <div class="controls">
+        <button id="startButton">Start Game</button>
+        <button id="restartButton">Restart</button>
+        <button id="soundToggle">Sound: On</button>
+        <button id="themeToggle">Theme: Light</button>
+    </div>
+
+    <div class="scoreContainer">
+        <div class="scoreTitle">Score</div>
+        <span id="score">0</span>
+        <div class="scoreTitle">High Score</div>
+        <span id="highScore">0</span>
+    </div>
+
+    <div class="grid"></div>
+
+    <footer>
+        <p>Created by <span class="highlight">MultiMian</span> | &copy; 2025</p>
+    </footer>
+
+    <!-- Sound Effects -->
+    <audio id="moveSound" src="move.mp3"></audio>
+    <audio id="mergeSound" src="merge.mp3"></audio>
+    <audio id="winSound" src="win.mp3"></audio>
+    <audio id="loseSound" src="lose.mp3"></audio>
+
+    <!-- Confetti Canvas -->
+    <canvas id="confetti"></canvas>
+</body>
+</html>
